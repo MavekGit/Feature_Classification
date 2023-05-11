@@ -12,23 +12,27 @@ images = []
 masks = []
 mask_of_1 = []
 mask_of_2 = []
+
+
 extractor = featureextractor.RadiomicsFeatureExtractor()
-extractor.disableAllFeatures()
+#extractor.disableAllFeatures()
+
+extractor.enableAllFeatures()
 # inicjalizacja cech pierwszego rzędu
-extractor.enableFeatureClassByName('firstorder')
+#extractor.enableFeatureClassByName('firstorder')
 # inicjalizacja cech drugiego rzędu
-extractor.enableFeatureClassByName('glcm')
+#extractor.enableFeatureClassByName('glcm')
 # wybór cech chcemy aby program policzył
-extractor.enableFeaturesByName(glcm=['Contrast', 'Correlation','Homogeneity2'])
-extractor.enableFeaturesByName(firstorder=['Mean','Variance' ,'Kurtosis','Skewness','Energy','Entropy'])
+#extractor.enableFeaturesByName(glcm=['Contrast', 'Correlation','Homogeneity2'])
+#extractor.enableFeaturesByName(firstorder=['Mean','Variance' ,'Kurtosis','Skewness','Energy','Entropy'])
 
 # czyszczenie pliku data.txt
 with open("C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/data.txt", "w") as f:
     pass
 f.close()
 # wczytytawnie obrazów j zakres 1-125 i 1-34
-for j in range(1,2):
-    for i in range(1, 30):
+for j in range(1,125):
+    for i in range(14, 34):
 
         # wczytanie zdjęć medycznych
         imgfilename = 'C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/Prostaty_2D_PNG_B08/P_{:03d}_{:04d}.png'.format(j,i)
@@ -80,8 +84,11 @@ for j in range(1,2):
               # Maska musi być obrazem binarnym gdzie 1 oznacza obszar po etykietowaniu
               # Jeśli w obrazie mamy więcej wartości to cechy zostaną policzone dla maski z wartościami 1
               featureVector = extractor.execute(image_sitk, mask_sitk_of_1)
+
+              featureVector = {k: featureVector[k] for i, k in enumerate(featureVector) if i >= 11}
+
               for featureName in featureVector.keys():
-#                print("Computed %s: %s" % (featureName, featureVector[featureName]))
+                #print("Computed %s: %s" % (featureName, featureVector[featureName]))
                 f.write("Computed %s: %s\n" % (featureName, featureVector[featureName]))
               
             f.close
@@ -91,8 +98,11 @@ for j in range(1,2):
             # zapis do pliku data.txt
             with open("C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/data.txt", "a") as f:
               featureVector = extractor.execute(image_sitk, mask_sitk_of_2)
+
+              featureVector = {k: featureVector[k] for i, k in enumerate(featureVector) if i >= 11}
+              
               for featureName in featureVector.keys():
-#                print("Computed %s: %s" % (featureName, featureVector[featureName]))
+                print("Computed %s: %s" % (featureName, featureVector[featureName]))
                 f.write("Computed %s: %s\n" % (featureName, featureVector[featureName]))
                 
             f.close()  
