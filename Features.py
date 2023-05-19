@@ -6,14 +6,14 @@ from radiomics import featureextractor
 import cv2
 import numpy as np
 import cv2
-
+import tocsv
 counter = 0
 images = []
 masks = []
 mask_of_1 = []
 mask_of_2 = []
-
-
+number_of_rows = 0
+number_of_col = 0
 extractor = featureextractor.RadiomicsFeatureExtractor()
 #extractor.disableAllFeatures()
 
@@ -31,8 +31,8 @@ with open("C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/data.
     pass
 f.close()
 # wczytytawnie obrazów j zakres 1-125 i 1-34
-for j in range(1,125):
-    for i in range(14, 34):
+for j in range(1,2):
+    for i in range(1, 34):
 
         # wczytanie zdjęć medycznych
         imgfilename = 'C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/Prostaty_2D_PNG_B08/P_{:03d}_{:04d}.png'.format(j,i)
@@ -88,13 +88,15 @@ for j in range(1,125):
               featureVector = {k: featureVector[k] for i, k in enumerate(featureVector) if i >= 11}
 
               for featureName in featureVector.keys():
-                #print("Computed %s: %s" % (featureName, featureVector[featureName]))
+                print("Computed %s: %s" % (featureName, featureVector[featureName]))
                 f.write("Computed %s: %s\n" % (featureName, featureVector[featureName]))
-              
-            f.close
+                #umber_of_col = number_of_col + 1 cech jest 118
+                
+              number_of_rows = number_of_rows+1 
+            f.close()
           # Jeśli wektor ma tylko jedną unikalna wartość znaczy że maska zawiera same 0 taki obraz pomijamy
           if (np.unique(mask_sitk_of_2)).size > 1:
-            counter = counter+1
+            
             # zapis do pliku data.txt
             with open("C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/data.txt", "a") as f:
               featureVector = extractor.execute(image_sitk, mask_sitk_of_2)
@@ -105,15 +107,21 @@ for j in range(1,125):
                 print("Computed %s: %s" % (featureName, featureVector[featureName]))
                 f.write("Computed %s: %s\n" % (featureName, featureVector[featureName]))
                 
+                
+                
+              number_of_rows = number_of_rows+1
+              print(number_of_rows,"wiersze")
+              print(number_of_col,"kolumny")
+              number_of_col = 118
             f.close()  
         else:
            print("Nie znaleziono pliku")
-        print(counter)
+        #print(counter)
 
 
 
 
 cv2.waitKey(0) 
 cv2.destroyAllWindows()    
-
+tocsv.write2csv(number_of_rows,number_of_col)
 
