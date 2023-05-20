@@ -25,7 +25,7 @@ def write2csv(number_of_rows,number_of_col):
         writer = csv.writer(outfile)
 
 
-                # otwórz plik txt do odczytu
+        # otwórz plik txt do odczytu
         with open(txt_file, "r") as infile:
 
         # wczytaj całą zawartość pliku txt
@@ -46,7 +46,7 @@ def write2csv(number_of_rows,number_of_col):
                     col = 0
                 if row == number_of_rows:
                     break
-                # zapisz wartości do pliku CSV        
+            # zapisz wartości do pliku CSV        
             print(feature_list)
             for row in feature_list:        
                 writer.writerow(row)

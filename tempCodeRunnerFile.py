@@ -1,1 +1,1 @@
-array
+number_of_col
