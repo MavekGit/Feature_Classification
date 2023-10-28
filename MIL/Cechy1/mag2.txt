@@ -1,0 +1,39 @@
+# instantiate trainer
+PSA_trainer = Trainer()
+
+# preparing trainer
+metrics = ['accuracy', 'auc', 'sensibility']  # Poprawione: zmiana 'acc' na 'accuracy'
+model = SVC(kernel='linear', C=1, class_weight='balanced')
+pipeline = [('scale', StandarizerBagsList()), ('disc_mapping', MILESMapping())]
+PSA_trainer.prepare(model, preprocess_pipeline=pipeline, metrics=metrics)
+
+# fitting trainer
+valid = LeaveOneOut()
+PSA_history = PSA_trainer.fit(PSA_train_bags, PSA_train_label, sample_weights='balanced', validation_strategy=valid, verbose=1)
+
+# printing validation results for each fold
+
+# predicting metrics for the test set
+# future = trainer.predict_metrics(bags, PSA_test_label)
+
+PSA_Predict_label = PSA_trainer.predict(bags)
+
+print(PSA_history)
+
+PSA_Predict = PSA_trainer.predict_metrics(bags, PSA_Predict_label)
+
+PSA_history_F1 = []  # Dodane: inicjalizacja listy przed pętlą
+
+for i in range(len(PSA_history["accuracy"])):
+    # Poprawione: dodanie indeksu 'i' do dostępu do elementów w pętli
+    PSA_history_F1.append((2 * (PSA_history['accuracy'][i] * PSA_history['sensibility'][i]) /
+                           (PSA_history['accuracy'][i] + PSA_history['sensibility'][i])))
+
+PSA_F1 = []  # Dodane: inicjalizacja listy przed pętlą
+
+for i in range(len(PSA_Predict['accuracy'])):
+    # Poprawione: dodanie indeksu 'i' do dostępu do elementów w pętli
+    PSA_F1.append((2 * (PSA_Predict['accuracy'][i] * PSA_Predict['sensibility'][i]) /
+                   (PSA_Predict['accuracy'][i] + PSA_Predict['sensibility'][i])))
+
+print(PSA_F1)

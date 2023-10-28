@@ -10,10 +10,10 @@ def write2csv(number_of_rows,number_of_col):
     #number_of_rows = 8
     #number_of_col = 118
     feature_list = np.empty([number_of_rows,number_of_col], dtype=object)
-    txt_file = "C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/data.txt"
+    txt_file = "C:/Users/Mavek/Desktop/Magisterka/Prostata_Cechy/data.txt"
 
 
-    csv_file1 = "C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/cechy.csv"
+    csv_file1 = "C:/Users/Mavek/Desktop/Magisterka/Prostata_Cechy/cechy.csv"
 
 
     # otwórz plik csv do zapisu

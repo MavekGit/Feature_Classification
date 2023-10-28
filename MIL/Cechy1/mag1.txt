@@ -1,0 +1,108 @@
+import pandas as pd
+import numpy as np
+import misvm
+import math
+import mil
+from mil.trainer import Trainer
+from mil.metrics import AUC
+from mil.preprocessing import StandarizerBagsList
+from mil.bag_representation import MILESMapping
+from mil.validators import LeaveOneOut
+
+from skmultilearn.problem_transform import BinaryRelevance
+from sklearn.svm import SVC
+from sklearn.multioutput import MultiOutputClassifier
+from scipy.sparse import csr_matrix
+
+
+label = []
+PSA_bags = []
+bags = []
+veci = []
+vecj = []
+df = pd.read_csv('C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/MIL/data.txt', sep='\s+', header=None)
+
+
+index = df.values[:,-1]
+index = [int(i) for i in index]  # Przekształcenie wartości index na int
+
+feature = df.values[:,:-1]
+
+unikalne_index = np.unique(index)
+
+# grupowane_dane = [list(feature[index == val]) for val in unikalne_index]
+# bags = grupowane_dane
+
+grupowane_dane = [list(feature[index == val].tolist()) for val in unikalne_index]
+bags = grupowane_dane
+
+
+leb = pd.read_csv(r'C:/Users/Maciej Wecki/Desktop/Studia Magisterskie/NTwI/Prostaty/MIL/LABEL.csv', header=None)
+
+
+for i in range(len(leb.iloc[:, 2])):
+    if leb.iloc[i,2] < 3 :
+        label.append(1)
+        PSA_bags.append(bags[i])
+    
+    elif leb.iloc[i,2] >= 4:
+        label.append(-1)
+        PSA_bags.append(bags[i])        
+
+test_label = np.ones(len(bags))
+test_label[2] = -1
+
+trainer = Trainer()
+
+# preparing trainer
+metrics = ['acc', AUC]
+model = SVC(kernel='linear', C=1, class_weight='balanced')
+pipeline = [('scale', StandarizerBagsList()), ('disc_mapping', MILESMapping())]
+trainer.prepare(model, preprocess_pipeline=pipeline ,metrics=metrics)
+
+valid = LeaveOneOut()
+history = trainer.fit(PSA_bags,label,sample_weights='balanced', validation_strategy=valid, verbose=1)
+
+
+# printing validation results for each fold
+print(history['metrics_val'])
+
+# predicting metrics for the test set
+trainer.predict_metrics(bags, test_label)
+
+#------------------------------------------------------------------------------------------------------------
+
+#print(PSA_bags)
+
+# for i in range(0,10000):
+#     if(math.isnan(bags(i))):
+#         print("isNAN")
+
+# x = np.ones(114)
+# x[2] = -1
+# xar = np.array(x)
+
+# classifier = misvm.MISVM(kernel='linear', C=1.0, max_iters=50)
+# classifier.fit(PSA_bags, label)
+# predict = classifier.predict(bags)
+
+
+# classifier = misvm.MISVM(kernel='linear', C=1.0, max_iters=50)
+# classifier.fit(bags, xar)
+# predics = classifier.predict(bags)
+
+# svm_classifier = SVC()
+# multioutput_svm = MultiOutputClassifier(svm_classifier)
+# mi_svm = BinaryRelevance(multioutput_svm)
+
+# bag_lengths = [len(bag[0]) for bag in bags]
+# if not all(length == bag_lengths[0] for length in bag_lengths):
+#     print("Wszystkie worki muszą mieć taką samą długość wektora cech.")
+#     exit()
+# else:
+#     print("maja")
+
+# bag_matrix = np.array([np.array(bag) for bag in PSA_bags])
+# bags_csr = csr_matrix(bag_matrix.reshape(len(PSA_bags), -1))
+
+# mi_svm.fit(bags_csr, label)
